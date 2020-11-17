@@ -10,6 +10,7 @@ import os
 import os.path as osp
 import re
 import sys
+from collections import defaultdict
 
 
 # converting statement pdf to text
@@ -20,7 +21,7 @@ if txtfile[-4:] != '.txt':
     txtfile += '.txt'
 txtfile = osp.join(filedir, txtfile)
 
-print(f'computing for {pdffile}')
+print(f'computing for {pdffile}\n')
 os.system(
     f'pdftotext -layout {pdffile} {txtfile}'
 )
@@ -32,24 +33,38 @@ with open(txtfile, 'r') as txt_file:
 # finding the data
 for i, line in enumerate(lines):
     if 'PREVIOUS BALANCE' in line:
-        startind =  i + 1
+        startind = i + 1
     if 'NEW BALANCE' in line:
         endind = i - 1
         break
 
 # parsing data
-total = float(re.split(' |\n', lines[startind-1])[-2].replace(',', ''))
+last_month = float(re.split(' |\n', lines[startind-1])[-2].replace(',', ''))
+
+# going through the data
+cat_dict = defaultdict(lambda: 0)
 for i in range(startind, endind, 2):
-    val = re.split(' |\n', lines[i])[-2].replace(',', '')
+    line = lines[i]
+
+    line = re.split(' |\n', line)
+    line = [l for l in line if l != '']
+
+    val = line[-1]
     try:
         val = float(val)
     except ValueError:
         val = val.replace('CR', '')
         val = -float(val)
 
-    total += val
+    cat_dict[line[4]] += val
 
-print(f'total bill: {total}')
+for key, val in cat_dict.items():
+    print(key, ':', val)
+
+
+print(
+    '\ntotal :', sum(cat_dict.values()) + last_month
+)
 
 # removing textfile
 os.remove(txtfile)
