@@ -51,10 +51,10 @@ for i in range(startind, endind, 2):
 
     val = line[-1]
     try:
-        val = float(val)
+        val = float(val.replace(',', ''))
     except ValueError:
         val = val.replace('CR', '')
-        val = -float(val)
+        val = -float(val.replace(',', ''))
 
     cat_dict[line[4]] += val
 
