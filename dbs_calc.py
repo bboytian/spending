@@ -63,10 +63,10 @@ for line in lines:
     # lines starting without date tend to be because it's in other currency
     try:
         int(line[0])
-    except ValueError:
+    except (ValueError, IndexError) as e:
         continue
 
-    cat_dict[line[2]] += float(line[-1])
+    cat_dict[line[2]] += float(line[-1].replace(',', ''))
 
 for key, val in cat_dict.items():
     print(key, ':', val)
