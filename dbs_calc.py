@@ -32,12 +32,13 @@ with open(txtfile, 'r') as txt_file:
 
 
 # finding the data
+pagebreakfront, pagebreakrear = 5, 5
 pagebreak_size = 11
 pagebreakind_l = []
 for i, line in enumerate(lines):
 
     if 'NEW TRANSACTIONS' in line:
-        startind =  i + 1
+        startind = i + 1
 
     if 'SUB-TOTAL' in line:
         endind = i
@@ -48,8 +49,15 @@ for i, line in enumerate(lines):
 lines = lines[startind:endind]
 for pagebreakind in pagebreakind_l[::-1]:
     if startind < pagebreakind < endind:
+        print(pagebreakind)
+
         breakind = pagebreakind - startind
-        lines = lines[:breakind] + lines[breakind+pagebreak_size:]
+
+        if 'Credit Cards' in lines[breakind]:
+            lines = lines[:breakind-pagebreakfront] \
+                + lines[breakind+pagebreakrear:]
+        else:
+            lines = lines[:breakind] + lines[breakind+pagebreak_size:]
 
 # going through the data
 cat_dict = defaultdict(lambda: 0)
@@ -66,7 +74,11 @@ for line in lines:
     except ValueError:
         continue
 
-    cat_dict[line[2]] += float(line[-1])
+    if line[-1] == 'CR':        # accounts for crediting back value
+        cat_dict[line[2]] -= float(line[-2])
+    else:
+        cat_dict[line[2]] += float(line[-1])
+
 
 for key, val in cat_dict.items():
     print(key, ':', val)
