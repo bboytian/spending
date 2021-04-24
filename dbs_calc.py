@@ -49,7 +49,6 @@ for i, line in enumerate(lines):
 lines = lines[startind:endind]
 for pagebreakind in pagebreakind_l[::-1]:
     if startind < pagebreakind < endind:
-        print(pagebreakind)
 
         breakind = pagebreakind - startind
 
